@@ -1,0 +1,24 @@
+// R1 = op1, R2 = op2_shifted(31:16), R3 = op2_shifted(15:0)
+// R4 = sum(31:16), R5 = sum(15:0), R6 = op2(31:16), R7 = op2(15:0)
+
+MOV R1, #0x0070 // 0, op1 = 112
+MOV R4, #0x0000 // 1, sum(31:16) = 0x0000
+MOV R5, #0x0000 // 2, sum(15:0) = 0x0000
+MOV R6, #0x0003 // 3, op2(31:16) = 0x0003
+MOV R7, #0x0051 // 4, op2(15:0) = 0x0051
+MOV R2, R6 // 5, op2_shifted(31:16) = op2(31:16)
+MOV R3, R7 // 6, op2_shifted(15:0) = op2(15:0)
+CMP R1, #0 // 7
+JEQ 11 // 8, while(op1 != 0)
+
+MOV R0, R1 // 9
+AND R0, #1 // 10
+CMP R0, #1 // 11
+JNE 3 // 12, if(op1 & 1)
+ADD R5, R5, R3 // 13, sum(15:0) = sum(15:0) + op2_shifted(15:0)
+ADC R4, R4, R2 // 14, sum(31:15) = sum(31:15) + op2_shifted(31:15) + Cin
+
+ADD R3, R3, R3 // 15, op2_shifted(15:0) = op2_shifted(15:0) << 1
+ADC R2, R2, R2 // 16, op2_shifted(31:15) = op2_shifted(31:15) << 1 (With carry)
+LSR R1, R1, #1 // 17, op1 = op1 >> 1
+JMP -11 // 18, while(op1 != 0)
